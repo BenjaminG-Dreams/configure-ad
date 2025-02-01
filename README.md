@@ -2,17 +2,17 @@
 <img src="https://i.imgur.com/pU5A58S.png" alt="Microsoft Active Directory Logo"/>
 </p>
 
-<h1>On-premises Active Directory Deployed in the Cloud (Azure)</h1>
-This tutorial outlines the implementation of on-premises Active Directory within Azure Virtual Machines.<br />
+<h1>Active Directory Deployed in Azure</h1>
+This tutorial guides the implementation of Active Directory within Microsoft Azure Virtual Machines. For this tutorial to be completed, you must finish the prerequisites first and come back to this one as it builds upon those.  <br />
 
+<h2>Prerequisites</h2>
 
-<h2>Video Demonstration</h2>
+- [Setup a Subscription and a Resource in Azure for Beginner Labs](https://github.com/bvongpradith/setup-azure-sub-and-resource)
+- [Create Virtual Machines Within Azure and Observe The Network Topology](https://github.com/bvongpradith/creating-azure-vm)
 
-- ### [YouTube: How to Deploy on-premises Active Directory within Azure Compute](https://www.youtube.com)
+<h2>Technologies and Enviroments Used</h2>
 
-<h2>Environments and Technologies Used</h2>
-
-- Microsoft Azure (Virtual Machines/Compute)
+- Microsoft Azure
 - Remote Desktop
 - Active Directory Domain Services
 - PowerShell
@@ -24,143 +24,187 @@ This tutorial outlines the implementation of on-premises Active Directory within
 
 <h2>High-Level Deployment and Configuration Steps</h2>
 
-- Setup Domain Controller in Azure
-- Setup Client Machine in Azure
-- Install and Configure Active Directory
-- Configure Users, OUs, and Group Policies
+- Create resources in a resource group in Azure
+- Ensure Connectivity between the client and Domain Controller
+- Install Active Directory
+- Create an Admin and Normal User Account in Active Directory
+- Join Client-1 to your domain
+- Setup Remote Desktop for non-administrative users on Client-1
+- Create additional users and attempt to log into client-1 with one of the users
+- Delete resources
 
-
-<h2>Deployment and Configuration Steps</h2>
-
-
-
+<h2>Deployment and Set Up</h2>
 
 <p>
-STEP 1 : To set up a basic Active Directory environment, begin by creating a Windows Server 2022 VM named "DC-1" as the Domain Controller, ensuring its NIC has a static private IP address, and noting the Resource Group and Virtual Network (Vnet) created. Next, create a Windows 10 VM named "Client-1" using the same Resource Group and Vnet as DC-1. Finally, verify that both VMs are in the same Vnet using Network Watcher and confirm connectivity between the client and Domain Controller, establishing the foundation for your Active Directory infrastructure.
+<img src="https://i.imgur.com/EZRqL12.png"/>
 </p>
 <p>
+First, we'll create the resources needed for this tutorial. I will be naming the resource group "AD-RG", the virtual machine "DC-1" and then select the Windows Server 2022. Make sure the size is set to be 2 VCPUs and then create the VM.
+</p>
+<br />
 
-<img width="1512" alt="create rs directory 2" src="https://github.com/user-attachments/assets/eda3996e-666c-4c5a-8d63-3f59c8eb2d09" />
+<p>
+<img src="https://i.imgur.com/gn2dr6T.png"/>
+</p>
+<p>
+Secondly, we'll create the Windows 10 VM named "Client-1". We must ensure that it is made under the same resource group, region, and have the same size VCPUs of the first VM. It will also need to be in the same Vnet as "DC-1".
+</p>
+<br />
 
-<img width="1512" alt="Screenshot 2025-01-19 at 5 06 31 PM" src="https://github.com/user-attachments/assets/20a474d3-7c13-45b6-9926-5d73dc890b16" />
+<p>
+<img src="https://i.imgur.com/W9MwKqG.png"/>
+</p>
+<p>
+Now go into DC-1 and click into the NIC (network interface card) as shown above.
+</p>
+<br />
 
+<p>
+<img src="https://i.imgur.com/jcTP1xX.png"/>
+</p>
+<p>
+Then click into "IP Configurations" and click on "ipconfig1".
+</p>
+<br />
 
-<img width="1512" alt="Screenshot 2025-01-18 at 5 27 21 PM" src="https://github.com/user-attachments/assets/2e1bb8cc-a105-44e3-a32d-dcf00f8de26f" />
-
+<p>
+<img src="https://i.imgur.com/nLi8mKo.png"/>
+</p>
+<p>
+Set the IP to static and then click save in the top left.
 </p>
 <br />
 
 
 <p>
-STEP 2 : Log into the Domain Controller (DC-1) and install Active Directory Domain Services, promoting the server to a Domain Controller by creating a new forest with the domain name "mydomain.com". After restarting and logging back in as mydomain.com\labuser, use Server Manager to create an administrative account with elevated permissions and a standard user account for typical network access. These actions establish the foundational Active Directory infrastructure and user management framework for the network environment.
-
+<img src="https://i.imgur.com/9hKoKlH.png"/>
 </p>
 <p>
-<img width="1512" alt="Screenshot 2025-01-18 at 8 10 47 PM" src="https://github.com/user-attachments/assets/a0089e37-11e3-4382-8a44-7b2fdeb94441" />
+Turn off fire wall in "Active Directory Domain Services", click "Add Features" and then continue to click next until you can install.
+</p>
+<br />
 
-<img width="1512" alt="Screenshot 2025-01-18 at 8 11 48 PM" src="https://github.com/user-attachments/assets/3dd79458-e8e1-4e10-8dac-9108a3d78ee3" />
+<p>
+<img src="https://i.imgur.com/9hKoKlH.png"/>
+</p>
+<p>
+Finally, we will install Active Directory inside of DC-1. Open up DC-1 and click into "Sever Manager". The first thing we will click is "Add roles and features", press next until we get into "Server Roles", check the box that says "Active Directory Domain Services", click "Add Features" and then continue to click next until you can install.
+</p>
+<br />
 
-<img width="1512" alt="Screenshot 2025-01-19 at 2 36 12 PM" src="https://github.com/user-attachments/assets/a50c53b3-ef3c-403b-87b0-16a70b81fef9" />
+<p>
+<img src="https://i.imgur.com/vAwcHG1.png"/>
+</p>
+<p>
+Next, we'll promote the DC-1 as a domain controller. To do this we'll click on the flag with the caution sign on the top right of "Server Manager" and press "Promote this server to a domain controller".
+</p>
+<br />
 
-<img width="1512" alt="Screenshot 2025-01-19 at 2 38 23 PM" src="https://github.com/user-attachments/assets/62812249-3d2d-46c2-82fa-1220c5e166ef" />
+<p>
+<img src="https://i.imgur.com/Cn367WC.png"/>
+</p>
+<p>
+Next, check "Add a new forest" name it to anything you want. In this tutorial we will use "mydomain.com" and hit next.
+</p>
+<br />
 
+<p>
+<img src="https://i.imgur.com/YoKCsr1.png"/>
+</p>
+<p>
+Now you can make a DSRM password and hit next until you are able to install. This will restart the virtual machine after it is finished.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/OjoxVpx.png"/>
+</p>
+<p>
+Next, we'll connect back into "DC-1" with RDC. This time we will use a different account and type the user as "mydomain.com\labuser" or the username that you created when you made "DC-1" The password will be the same.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/IqPpMGP.png"/>
+</p>
+<p>
+Now we'll go to the server manager and then go to tools. Press "Active Directory Users and Computers" or ADUC.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/iE9ClSe.png"/>
+</p>
+<p>
+Next create two new "Organizational Units" by clicking on mydomain and right clicking the white space. The first unit will be named "_EMPLOYEES" and the second one "_ADMINS".
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/qh93Put.png"/>
+</p>
+<p>
+After, we will create a new admin user by clicking to top button with a person and star on it. Name the user Jane Doe and the login username to "jane_admin". In the next screen, uncheck "User must cahnge password at next logon" then hit next to create the user.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/kjVrg2x.png"/>
+</p>
+<p>
+Next, add Jane Doe to the group "Domain Admins". To perfom this step, right click on Jane > Properties > Member Of > Add > type "Domain" in the object box > Check Names > click "Domain Admins" > click Ok and then apply. After this, you will logout and log on to DC-1 as jane_admin.
 
 </p>
 <br />
 
-
-
-
 <p>
-Step 3 Focuses on creating organizational units and user accounts in Active Directory, as well as joining a client to the domain. First, use Active Directory Users and Computers (ADUC) to create two organizational units named "_EMPLOYEES" and "_ADMINS", then create a new employee account for "Jane Doe" with the username "jane_admin" and add it to the "Domain Admins" Security Group. Finally, log out of DC-1, log back in as "mydomain.com\jane_admin", and use this account to join Client-1 to the domain (mydomain.com), establishing the basic Active Directory structure and demonstrating domain join functionality
+<img src="https://i.imgur.com/FowKbmg.png"/>
 </p>
 <p>
-<img width="1512" alt="Screenshot 2025-01-19 at 3 04 18 PM" src="https://github.com/user-attachments/assets/75de0c46-0cd6-425b-ad62-4ef74ef085e7" />
-
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 12 20 PM" src="https://github.com/user-attachments/assets/119a958f-fdb4-418b-9987-a28d87487e39" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 18 11 PM" src="https://github.com/user-attachments/assets/e4b13fa9-a6ca-4c1f-a873-79a257d69ac9" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 36 03 PM" src="https://github.com/user-attachments/assets/1009a86a-c3a7-4722-a521-0c95b601f04d" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 41 00 PM" src="https://github.com/user-attachments/assets/75b7ec19-e615-4879-a1f4-bae51118a82e" />
-
-
+Now set Client-1's DNS server to the private IP of DC-1. To do this, head back to Client-1's nertworking on the Azure portal and click on the NIC. Click into DNS servers and add the private IP of DC-1 into the list and press save. Restart Client-1 by going back to the VM on Azure and press restart button at the top. Log back in after restarting.
 </p>
 <br />
 
-
-
 <p>
-In Step 4, join Client-1 to the domain (mydomain.com) by logging in as the local admin (john), changing the computer's domain settings, and restarting the machine to complete domain integration. After the restart, log into the Domain Controller (DC-1) and verify Client-1's presence in Active Directory Users and Computers (ADUC), then create a new Organizational Unit named "_CLIENTS" and move Client-1 into this container for better network organization. Log back into Client-1 as mydomain.com\jane_admin to configure Remote Desktop settings, ensuring that domain users can access the machine remotely. This process establishes proper domain membership, organizational structure, and remote access permissions, creating a foundational network configuration for user connectivity and management.
+<img src="https://i.imgur.com/IP7qWkL.png"/>
 </p>
 <p>
-<img width="1512" alt="Screenshot 2025-01-19 at 3 49 07 PM" src="https://github.com/user-attachments/assets/af994f59-5020-4792-95ff-4f95d2111dcd" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 50 03 PM" src="https://github.com/user-attachments/assets/43aa685d-c361-42a4-89d5-3d7b6d4ffa59" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 3 52 28 PM" src="https://github.com/user-attachments/assets/cb14b889-b45c-4a33-93af-eec7420a9fa7" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 24 05 PM" src="https://github.com/user-attachments/assets/336ad6d4-14aa-44f6-8e03-97606ee615e8" />
-
+When inside Client-1, go to Settings > About > Rename this PC(Advanced) > change domain > type mydomain.com > use mydomain.com\jane_admin > then press ok to make the changes apply. Restart Client-1 and log into jane_admin.
 </p>
 <br />
 
-
-
-
-
-
-
 <p>
-In Step 5, log into the Domain Controller (DC-1) as jane_admin and open PowerShell ISE with administrator privileges to execute a user creation script that will generate multiple random user accounts across the domain. Run the script and carefully observe the account generation process, noting the details and passwords for each newly created user account. Open Active Directory Users and Computers (ADUC) to verify that the new accounts have been correctly placed in the appropriate Organizational Unit (OU) with the expected configurations. Finally, attempt to log into Client-1 using one of the newly created user accounts to validate domain connectivity, remote access permissions, and overall network infrastructure functionality.
+<img src="https://i.imgur.com/AHOJ62I.png"/>
 </p>
 <p>
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 34 22 PM" src="https://github.com/user-attachments/assets/0227c1b5-6917-411e-9a86-4531f47b1217" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 39 05 PM" src="https://github.com/user-attachments/assets/083eecaa-8762-4f05-a996-d9b58e27db8d" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 44 23 PM" src="https://github.com/user-attachments/assets/7f190906-f4d9-4b16-bd5f-10cc01df1dd6" />
-
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 47 59 PM" src="https://github.com/user-attachments/assets/7b8bc9b2-ec49-4781-932f-0cdb92a1f323" />
-
-<img width="1512" alt="Screenshot 2025-01-19 at 4 53 32 PM" src="https://github.com/user-attachments/assets/b0e58e13-5594-4170-b889-c61154c90f61" />
-
-
-
-
-
-
+After logging in, go to Remote Desktop Settings and click "Select users that can remotely access this PC" > add > type "domain users" in the object box > check names and then hit OK. This will allow all domain users to connect to Client-1.
 </p>
 <br />
 
+<p>
+<img src="https://i.imgur.com/enrGRgz.png"/>
+</p>
+<p>
+Head back to DC-1 and into ADUC in the server manager application. Check to see if Client-1 is listed by clicking into mydomain and computers where you should see Client-1.
+</p>
+<br />
 
+<p>
+<img src="https://i.imgur.com/4mTbIfW.png"/>
+</p>
+<p>
+While in DC-1, open "Windows Powershell ISE (x86)" as admin.
+</p>
+<br />
 
+<p>
+<img src="https://i.imgur.com/JehSLdN.png"/>
+</p>
+<p>
+Finally, create 10,000 users with a randomly generated names by copying the powershell script linked below. To do this we will create a new script by pressing the button at the top left > paste script > and then hit the green run script button.
 
+- [Script](https://github.com/joshmadakor1/AD_PS/blob/master/Generate-Names-Create-Users.ps1)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+After the users are created, you can use any of them to sign into Client-1. The password is defaulted to "Password1" when the script was ran on powershell.
+</p>
+<br />
