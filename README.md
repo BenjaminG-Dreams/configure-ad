@@ -135,6 +135,3 @@ Finally, we will install Active Directory inside of DC-1. Open up DC-1 and click
 <br />
 
 <h1>Stay Tuned for On-premises Active Directory within Azure VMs Part 2</h1>
-After the users are created, you can use any of them to sign into Client-1. The password is defaulted to "Password1" when the script was ran on powershell.
-</p>
-<br />
