@@ -132,3 +132,5 @@ Finally, we will install Active Directory inside of DC-1. Open up DC-1 and click
 <br />
 
 <h1>Stay Tuned for On-premises Active Directory within Azure VMs Part 2</h1>
+
+ -[On-premises Active Directory within Azure VMs Part 2](https://github.com/BenjaminG-Dreams/configure-ad2)
